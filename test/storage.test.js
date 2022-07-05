@@ -1,9 +1,10 @@
 const { query, end } = require('../database');
-const { add, get, getTimestampAfterNDays } = require('../storage');
+const { add, get, getTimestampAfterNDays, TABLE_NAME, getAll, update } = require('../storage');
 
 beforeEach(() => query('BEGIN;'));
 afterEach(() => query('ROLLBACK;'));
 afterAll(() => end());
+
 it('Should provide a key if not given', async () => {
     expect.assertions(1);
     const key = await add({ hello: 'world' });
@@ -44,10 +45,14 @@ it('Should not expire after 4 days by default', async () => {
     expect(retrievedData).toEqual(data);
 });
 
-it('Should expire after 7 days by default', async () => {
-    expect.assertions(1);
-    const data = { hello: 'world' };
-    const key = await add(data);
-    const retrievedData = await get(key, getTimestampAfterNDays(7));
-    expect(retrievedData).toBeNull();
+it('Should expire 1 after inserting 3', async () => {
+    const datas = [1, 2, 3];
+    await query(`DELETE FROM ${TABLE_NAME}`)
+    const keys = await Promise.all(datas.map((data) => add(data)));
+    const all = await getAll(0, 20, 0)
+    expect(all.length).toBe(3)
+
+    await update(keys[0], 0)
+    const allAfter = await getAll(0, 20, 0)
+    expect(allAfter.length).toBe(2)
 });

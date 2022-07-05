@@ -15,6 +15,7 @@ if (process.env.NODE_ENV === 'test') {
 
 module.exports = {
   query: (sql, params) => {
+    console.log(sql)
     console.log('SENDING QUERY | ', sql, params);
     return db.query(sql, params);
   },
