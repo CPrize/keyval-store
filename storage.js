@@ -43,7 +43,7 @@ module.exports.get = function get(key, now = getTimestampAfterNDays(0)) {
 };
 
 module.exports.getAll = function getAll(lastId = 0, limit = 20, isExpired = 1) {
-    const operator = isExpired? '<=' : '>'; 
+    const operator = +isExpired? '<=' : '>'; 
     const now = getTimestampAfterNDays(0)
     return query(`SELECT * FROM ${TABLE_NAME} WHERE id > $1 AND expire_on ${operator} $2 LIMIT $3`, [lastId, now, limit])
         .then((result) => {
